@@ -3,6 +3,10 @@ Description: Infrastructure for example app
 
 Parameters:
 
+  ClusterName:
+    Description: Name of ECS cluster
+    Type: String
+
   InstanceType:
     Description: EC2 Instance type
     Type: String
@@ -28,8 +32,12 @@ Parameters:
     Type: String
     Default: "ami-0dca97e7cde7be3d5"
 
-  ExampleImage:
+  AppImage:
     Description: Name of the image for the app
+    Type: String
+
+  NginxImage:
+    Description: Name of the nginx image for the app
     Type: String
 
 
@@ -38,7 +46,7 @@ Resources:
   AppCluster:
     Type: "AWS::ECS::Cluster"
     Properties:
-      ClusterName: "example-app2"
+      ClusterName: !Ref ClusterName
 
   EC2RoleForECS:
     Type: "AWS::IAM::Role"
@@ -94,21 +102,26 @@ Resources:
         - "us-east-2b"
         - "us-east-2c"
 
-  ExampleTaskDefinition:
+  AppTaskDefinition:
     Type: "AWS::ECS::TaskDefinition"
     Properties:
       ContainerDefinitions:
-        - Name: example
-          Memory: 256
-          Image: !Ref ExampleImage
+        - Name: app
+          Memory: 128
+          Image: !Ref AppImage
+        - Name: nginx
+          Memory: 128
+          Image: !Ref NginxImage
+          Links:
+            - app
           PortMappings:
-            - ContainerPort: 8080
+            - ContainerPort: 80
               HostPort: 80
 
-  ExampleService:
+  AppService:
     Type: "AWS::ECS::Service"
     Properties:
       Cluster: !Ref AppCluster
       DesiredCount: 1
       LaunchType: EC2
-      TaskDefinition: !Ref ExampleTaskDefinition
+      TaskDefinition: !Ref AppTaskDefinition
