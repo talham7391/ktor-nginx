@@ -1,0 +1,114 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Infrastructure for example app
+
+Parameters:
+
+  InstanceType:
+    Description: EC2 Instance type
+    Type: String
+    Default: "t2.micro"
+
+  MinSize:
+    Description: Min amount of EC2 instances
+    Type: Number
+    Default: 0
+
+  MaxSize:
+    Description: Max amount of EC2 instances
+    Type: Number
+    Default: 1
+
+  DesiredCapacity:
+    Description: Desired number of EC2 instances
+    Type: Number
+    Default: 1
+
+  EC2AMI:
+    Description: AMI ID (Needs to be compatible with ECS)
+    Type: String
+    Default: "ami-0dca97e7cde7be3d5"
+
+  ExampleImage:
+    Description: Name of the image for the app
+    Type: String
+
+
+Resources:
+
+  AppCluster:
+    Type: "AWS::ECS::Cluster"
+    Properties:
+      ClusterName: "example-app2"
+
+  EC2RoleForECS:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: "ec2.amazonaws.com"
+            Action: "sts:AssumeRole"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role
+
+  EC2SecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: Allow server to recieve connections
+      SecurityGroupIngress:
+        - CidrIp: "0.0.0.0/0"
+          IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+
+  EC2InstanceProfile:
+    Type: "AWS::IAM::InstanceProfile"
+    Properties:
+      Roles:
+        - !Ref EC2RoleForECS
+
+  EC2LaunchConfig:
+    Type: "AWS::AutoScaling::LaunchConfiguration"
+    Properties:
+      ImageId: !Ref EC2AMI
+      InstanceType: !Ref InstanceType
+      IamInstanceProfile: !Ref EC2InstanceProfile
+      SecurityGroups:
+        - !Ref EC2SecurityGroup
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          echo ECS_CLUSTER=${AppCluster} >> /etc/ecs/ecs.config
+
+  AutoScalingGroup:
+    Type: "AWS::AutoScaling::AutoScalingGroup"
+    Properties:
+      MinSize: !Ref MinSize
+      MaxSize: !Ref MaxSize
+      DesiredCapacity: !Ref DesiredCapacity
+      LaunchConfigurationName: !Ref EC2LaunchConfig
+      AvailabilityZones:
+        - "us-east-2a"
+        - "us-east-2b"
+        - "us-east-2c"
+
+  ExampleTaskDefinition:
+    Type: "AWS::ECS::TaskDefinition"
+    Properties:
+      ContainerDefinitions:
+        - Name: example
+          Memory: 256
+          Image: !Ref ExampleImage
+          PortMappings:
+            - ContainerPort: 8080
+              HostPort: 80
+
+  ExampleService:
+    Type: "AWS::ECS::Service"
+    Properties:
+      Cluster: !Ref AppCluster
+      DesiredCount: 1
+      LaunchType: EC2
+      TaskDefinition: !Ref ExampleTaskDefinition

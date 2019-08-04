@@ -12,6 +12,8 @@ buildscript {
 }
 
 plugins {
+    id 'com.github.johnrengelman.shadow' version '5.1.0'
+
     // Apply the Kotlin JVM plugin to add support for Kotlin on the JVM.
     id 'org.jetbrains.kotlin.jvm' version '1.3.41'
 
@@ -53,6 +55,8 @@ compileTestKotlin {
 // Define the main class for the application.
 mainClassName = 'io.ktor.server.netty.EngineMain'
 
-task deploy(type:Exec) {
-    commandLine "echo", "okay let me try to deploy"
+shadowJar {
+    manifest {
+        attributes 'Main-Class': mainClassName
+    }
 }
