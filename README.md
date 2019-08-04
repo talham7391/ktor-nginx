@@ -20,8 +20,8 @@ The main ktor app is launched in an ECS task and nginx is launched as a sidecar 
  2. Configure AWS CLI - `aws configure`
 3. Fill in the variables in the Makefile:
 ```
-DOCKER_ACC=sample_account
-APP_NAME=sample-app-name
+DOCKER_ACC=
+APP_NAME=
 ```
 4. Browse the repo and change folder/file/variable names to your liking. Currently these things are named "example".
 5. Start developing & deploying (See below)
