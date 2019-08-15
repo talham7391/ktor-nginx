@@ -38,7 +38,7 @@ Stops the local deployment on docker.
 Deploys app to AWS. You must log in to AWS and get the IP of the EC2 instance to see the address of your deployment.
 
 **make teardown**<br/>
-Deletes deployment from AWS
+Deletes deployment from AWS.
 
 **make eject project-name=my-project**<br/>
 Changes names of folders/files to match given project name.
