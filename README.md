@@ -31,7 +31,7 @@ APP_NAME=
 **make start**<br/>
 Creates a local deployment on docker. App is available at `localhost:80` ie. `localhost`.
 
-**make stop**<br/>g
+**make stop**<br/>
 Stops the local deployment on docker.
 
 **make deploy**<br/>
