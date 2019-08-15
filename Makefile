@@ -52,3 +52,20 @@ teardown:
 	aws cloudformation delete-stack \
 	--stack-name ${STACK_NAME}
 
+g
+.PHONY: eject
+eject:
+
+	@if [ -z "$(project-name)" ]; then \
+		echo "Usage: make eject project-name=\"example\""; \
+		exit 1; \
+	fi
+
+	mv src/main/kotlin/example "src/main/kotlin/$(project-name)"
+	mv src/test/kotlin/example "src/test/kotlin/$(project-name)"
+
+	find src -type f -print0 | xargs -0 sed -i "" -e "s/example/$(project-name)/g"
+	find templates -type f -print0 | xargs -0 sed -i "" -e "s/example/$(project-name)/g"
+
+	sed -i "" -e "s/example/$(project-name)/g" settings.gradle
+	sed -i "" -e "s/example/$(project-name)/g" "Dockerfile"
