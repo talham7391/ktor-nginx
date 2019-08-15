@@ -10,7 +10,7 @@ import kotlin.test.assertEquals
 
 
 class AppTest {
-    @Test fun testHelloWorld() = withTestApplication(Application::main) {
+    @Test fun testRoute() = withTestApplication(Application::main) {
         with(handleRequest(HttpMethod.Get, "")) {
             assertEquals(HttpStatusCode.OK, response.status())
         }
