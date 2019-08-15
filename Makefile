@@ -52,7 +52,7 @@ teardown:
 	aws cloudformation delete-stack \
 	--stack-name ${STACK_NAME}
 
-g
+
 .PHONY: eject
 eject:
 
