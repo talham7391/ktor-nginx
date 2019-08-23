@@ -37,6 +37,9 @@ Stops the local deployment on docker.
 **make deploy**<br/>
 Deploys app to AWS. You must log in to AWS and get the IP of the EC2 instance to see the address of your deployment.
 
+**make serveraddy**<br/>
+Tells you the public ipv4 address of your deployment.
+
 **make teardown**<br/>
 Deletes deployment from AWS.
 
