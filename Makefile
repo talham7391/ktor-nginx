@@ -52,7 +52,7 @@ serveraddy:
 
 	$(eval AUTOSCALE_ARN := $(shell \
 	aws cloudformation describe-stack-resources \
-	--stack-name testing-stack \
+	--stack-name ${STACK_NAME} \
 	--query '(StackResources[?ResourceType==`AWS::AutoScaling::AutoScalingGroup`].PhysicalResourceId)[0]' \
 	| tr -d \"))
 
