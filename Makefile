@@ -30,6 +30,7 @@ start: buildimages
 
 .PHONY: stop
 stop:
+
 	docker stop ${APP_NAME}
 
 
@@ -44,6 +45,27 @@ deploy: buildimages pushimages
 		ClusterName="${APP_NAME}-cluster" \
 		AppImage="${IMAGE}" \
 		NginxImage="${NGINX_IMAGE}"
+
+
+.PHONY: serveraddy
+serveraddy:
+
+	$(eval AUTOSCALE_ARN := $(shell \
+	aws cloudformation describe-stack-resources \
+	--stack-name testing-stack \
+	--query '(StackResources[?ResourceType==`AWS::AutoScaling::AutoScalingGroup`].PhysicalResourceId)[0]' \
+	| tr -d \"))
+
+	$(eval INSTANCE_ID := $(shell \
+	aws autoscaling describe-auto-scaling-groups \
+	--auto-scaling-group-names ${AUTOSCALE_ARN} \
+	--query 'AutoScalingGroups[0].Instances[0].InstanceId' \
+	| tr -d \"))
+
+	@echo $(shell aws ec2 describe-instances \
+	--instance-ids ${INSTANCE_ID} \
+	--query 'Reservations[0].Instances[0].PublicIpAddress' \
+	| tr -d \")
 
 
 .PHONY: teardown

@@ -12,33 +12,23 @@ Parameters:
     Type: String
     Default: "t2.micro"
 
-  MinSize:
-    Description: Min amount of EC2 instances
-    Type: Number
-    Default: 0
-
-  MaxSize:
-    Description: Max amount of EC2 instances
-    Type: Number
-    Default: 1
-
-  DesiredCapacity:
-    Description: Desired number of EC2 instances
-    Type: Number
-    Default: 1
-
-  EC2AMI:
-    Description: AMI ID (Needs to be compatible with ECS)
-    Type: String
-    Default: "ami-0dca97e7cde7be3d5"
-
   AppImage:
     Description: Name of the image for the app
     Type: String
 
+  AppMemory:
+    Description: Memory allocated to app container
+    Type: Number
+    Default: 128
+
   NginxImage:
     Description: Name of the nginx image for the app
     Type: String
+
+  NginxMemory:
+    Description: Memory allocated to nginx container
+    Type: Number
+    Default: 128
 
 
 Resources:
@@ -80,7 +70,7 @@ Resources:
   EC2LaunchConfig:
     Type: "AWS::AutoScaling::LaunchConfiguration"
     Properties:
-      ImageId: !Ref EC2AMI
+      ImageId: "ami-0dca97e7cde7be3d5"
       InstanceType: !Ref InstanceType
       IamInstanceProfile: !Ref EC2InstanceProfile
       SecurityGroups:
@@ -93,9 +83,9 @@ Resources:
   AutoScalingGroup:
     Type: "AWS::AutoScaling::AutoScalingGroup"
     Properties:
-      MinSize: !Ref MinSize
-      MaxSize: !Ref MaxSize
-      DesiredCapacity: !Ref DesiredCapacity
+      MinSize: 0
+      MaxSize: 1
+      DesiredCapacity: 1
       LaunchConfigurationName: !Ref EC2LaunchConfig
       AvailabilityZones:
         - "us-east-2a"
@@ -107,10 +97,10 @@ Resources:
     Properties:
       ContainerDefinitions:
         - Name: app
-          Memory: 128
+          Memory: !Ref AppMemory
           Image: !Ref AppImage
         - Name: nginx
-          Memory: 128
+          Memory: !Ref NginxMemory
           Image: !Ref NginxImage
           Links:
             - app
