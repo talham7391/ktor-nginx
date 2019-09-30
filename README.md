@@ -24,7 +24,8 @@ DOCKER_ACC=
 APP_NAME=
 ```
 4. Run `make eject project-name=my-project` to change names of folders/files.
-5. Start developing & deploying (See below)
+5. Change line 8 in `nginx/nginx.conf` to be the same as `APP_NAME`: `proxy_pass http://{app name goes here}:8080/;`
+6. Start developing & deploying (See below)
 
 ## Makefile
 
